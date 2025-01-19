@@ -2,6 +2,7 @@
 python -m venv .venv
 
 2. Activate the virtual environment:
+
 For Windows
 .\.venv\Scripts\activate
 
