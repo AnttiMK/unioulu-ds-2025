@@ -10,10 +10,13 @@ For Unix
 source .venv/bin/activate
 
 3. Install Dependencies
+
 pip install -r requirements.txt
 
 4. Run the Server
+   
 python server.py
 
-5. Run the Client
+6. Run the Client
+
 python client.py
