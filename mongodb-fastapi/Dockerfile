@@ -1,0 +1,21 @@
+# Use a lightweight Python base image
+FROM python:3.13-slim
+
+# Set environment variable for MongoDB URL
+ENV MONGODB_URL=mongodb://admin:password@mongodb:27017
+
+# Set the working directory
+WORKDIR /app
+
+# Copy requirements file
+COPY requirements.txt requirements.txt
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the FastAPI code
+COPY main.py main.py
+
+# Expose port 8000 and run the app
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
