@@ -1,4 +1,5 @@
 1. Create the virtual environment:
+
 python -m venv .venv
 
 2. Activate the virtual environment:
