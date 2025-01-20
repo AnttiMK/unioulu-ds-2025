@@ -1,5 +1,5 @@
 from confluent_kafka import Consumer, KafkaException, KafkaError
-import time
+import requests
 
 # Configuration for Kafka consumer
 consumer_config = {
@@ -26,8 +26,19 @@ def consume_messages():
                     print(f"Consumer error: {msg.error()}")
                     break
             # Process the message
-            msgValue = msg.value().decode('utf-8')
+            msg_value = msg.value().decode('utf-8')
             print(f"Consumed message: {msg.value().decode('utf-8')} from {msg.topic()}")
+
+            values = msg_value.split(',')
+            num1 = float(values[0])
+            num2 = float(values[1])
+            result = float(values[2])
+
+            response = requests.post(
+                "http://localhost:8000/store_calculation",
+                json={"num1": num1, "num2": num2, "result": result},
+                timeout=5
+            )
 
     except KeyboardInterrupt:
         print("Consumer interrupted by user.")

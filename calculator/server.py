@@ -26,7 +26,7 @@ class CalculatorServicer(calculator_pb2_grpc.CalculatorServicer):
         response = calculator_pb2.AddResponse(result=result)
         
         # Produce message to Kafka
-        message = f"Add operation: {request.num1} + {request.num2} = {result}"
+        message = f"{request.num1},{request.num2},{result}"
         producer.produce('calculator_topic', value=message, callback=delivery_report)
         producer.poll(0)  # Trigger delivery report callbacks
         print(f"Sent: {message}")
