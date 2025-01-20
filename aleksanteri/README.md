@@ -10,14 +10,14 @@ Testing the system:
     Start Kafka:
 
     Start Zookeeper
-    # bin/zookeeper-server-start.sh config/zookeeper.properties
+    # .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
     Start Kafka
-    # bin/kafka-server-start.sh config/server.properties
+    # .\bin\windows\kafka-server-start.bat .\config\server.properties
 
     Run the Producer:
 
-    python producer_microservice.py
+    python producer.py
 
     Run the Consumer:
 
-    python consumer_microservice.py
+    python consumer.py
