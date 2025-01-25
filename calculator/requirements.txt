@@ -6,3 +6,5 @@ idna==3.10
 protobuf==5.29.3
 requests==2.32.3
 urllib3==2.3.0
+prometheus_client==0.21.1
+grpcio_reflection
