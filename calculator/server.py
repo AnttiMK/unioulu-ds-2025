@@ -3,6 +3,17 @@ import grpc
 import calculator_pb2
 import calculator_pb2_grpc
 from confluent_kafka import Producer
+from prometheus_client import start_http_server, Summary, Counter, Gauge
+from prometheus_client.exposition import generate_latest
+from grpc_reflection.v1alpha import reflection
+
+# Start Prometheus metrics server
+start_http_server(8001)
+
+# Define metrics
+REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+REQUEST_COUNT = Counter('request_count', 'Total number of requests')
+IN_PROGRESS = Gauge('in_progress_requests', 'Number of requests in progress')
 
 # Configuration for Kafka producer
 producer_config = {
@@ -36,6 +47,11 @@ class CalculatorServicer(calculator_pb2_grpc.CalculatorServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     calculator_pb2_grpc.add_CalculatorServicer_to_server(CalculatorServicer(), server)
+    SERVICE_NAMES = (
+        calculator_pb2.DESCRIPTOR.services_by_name['Calculator'].full_name,
+        reflection.SERVICE_NAME,
+    )
+    reflection.enable_server_reflection(SERVICE_NAMES, server)
     server.add_insecure_port('[::]:50051')
     server.start()
     print("Server is running on port 50051")

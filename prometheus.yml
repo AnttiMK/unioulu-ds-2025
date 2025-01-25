@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'fastapi'
+    static_configs:
+      - targets: ['fastapi_app:8000']
+
+  - job_name: 'grpc'
+    static_configs:
+      - targets: ['localhost:50051']
+
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['localhost:9092']
