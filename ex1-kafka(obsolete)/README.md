@@ -1,3 +1,5 @@
+NOTE: This folder is obsolete as of ex2, left only for reference purposes.
+
 Prerequisites:
 
     Install and configure Kafka and start it locally or on a server.
