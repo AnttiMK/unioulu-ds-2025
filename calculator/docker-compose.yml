@@ -6,7 +6,9 @@ services:
       dockerfile: Dockerfile.client
     container_name: calculator_client
     environment:
-      - GRPC_SERVER_URL=localhost:50051  # Ensure this matches your gRPC server URL
+      - GRPC_SERVER_URL=server:50051  # Use the service name of the gRPC server
+    depends_on:
+      - server
 
   consumer:
     build:
@@ -15,7 +17,7 @@ services:
     container_name: calculator_consumer
     environment:
       - MONGODB_URL=mongodb://admin:password@mongodb:27017  # Ensure this matches your MongoDB URL
-      - KAFKA_BROKER_URL=localhost:9092  # Ensure this matches your Kafka broker URL
+      - KAFKA_BROKER_URL=kafka:9092  # Ensure this matches your Kafka broker URL
 
   server:
     build:
@@ -25,4 +27,5 @@ services:
     ports:
       - "50051:50051"
     environment:
-      KAFKA_BROKER_URL: 'localhost:9092'  # Ensure this matches your Kafka broker URL
+      - KAFKA_BROKER_URL=kafka:9092  # Ensure this matches your Kafka broker URL
+      - FASTAPI_SERVER=fastapi:8000

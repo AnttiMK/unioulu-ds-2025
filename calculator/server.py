@@ -6,6 +6,9 @@ from confluent_kafka import Producer
 from prometheus_client import start_http_server, Summary, Counter, Gauge
 from prometheus_client.exposition import generate_latest
 from grpc_reflection.v1alpha import reflection
+import os
+
+KafkaServer = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
 
 # Start Prometheus metrics server
 start_http_server(8001)
@@ -17,7 +20,7 @@ IN_PROGRESS = Gauge('in_progress_requests', 'Number of requests in progress')
 
 # Configuration for Kafka producer
 producer_config = {
-    'bootstrap.servers': 'localhost:9092',  # Kafka broker
+    'bootstrap.servers': KafkaServer,  # Kafka broker
     'client.id': 'calculator-server',
 }
 

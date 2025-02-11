@@ -1,9 +1,13 @@
 from confluent_kafka import Consumer, KafkaException, KafkaError
 import requests
+import os
+
+Kafkasever = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
+Fastapi = os.getenv("FASTAPI_SERVER", "localhost:8000")
 
 # Configuration for Kafka consumer
 consumer_config = {
-    'bootstrap.servers': 'localhost:9092',
+    'bootstrap.servers': Kafkasever,
     'group.id': 'consumer-microservice',
     'auto.offset.reset': 'earliest',  # Start reading at the earliest message
 }
@@ -35,7 +39,7 @@ def consume_messages():
             result = float(values[2])
 
             response = requests.post(
-                "http://localhost:8000/store_calculation",
+                Fastapi + "/store_calculation",
                 json={"num1": num1, "num2": num2, "result": result},
                 timeout=5
             )

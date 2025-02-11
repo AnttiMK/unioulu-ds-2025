@@ -13,5 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
+# Set the GRPC_SERVER_URL environment variable
+ENV GRPC_SERVER_URL=calculator_server:50051
+
 # Start the gRPC client
 CMD ["python", "client.py"]
