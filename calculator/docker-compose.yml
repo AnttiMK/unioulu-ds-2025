@@ -1,20 +1,10 @@
 
 services:
-  calculator:
-    build: .
-    container_name: calculator_service
-    ports:
-      - "50051:50051"
-    environment:
-      KAFKA_BROKER_URL: 'localhost:9092'  # Ensure this matches your Kafka broker URL
-
   client:
     build:
       context: .
       dockerfile: Dockerfile.client
     container_name: calculator_client
-    depends_on:
-      - calculator
     environment:
       - GRPC_SERVER_URL=localhost:50051  # Ensure this matches your gRPC server URL
 
@@ -23,8 +13,6 @@ services:
       context: .
       dockerfile: Dockerfile.consumer
     container_name: calculator_consumer
-    depends_on:
-      - calculator
     environment:
       - MONGODB_URL=mongodb://admin:password@mongodb:27017  # Ensure this matches your MongoDB URL
       - KAFKA_BROKER_URL=localhost:9092  # Ensure this matches your Kafka broker URL
