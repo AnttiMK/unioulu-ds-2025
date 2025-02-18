@@ -1,0 +1,110 @@
+services:
+  client:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.client
+    container_name: calculator_client
+    environment:
+      - GRPC_SERVER_URL=server:50051  # Use the service name of the gRPC server
+    depends_on:
+      - server
+
+  consumer:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.consumer
+    container_name: calculator_consumer
+    environment:
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017  # Ensure this matches your MongoDB URL
+      - KAFKA_BROKER_URL=kafka:9092  # Ensure this matches your Kafka broker URL
+      - FASTAPI_SERVER=http://fastapi_app:8000  # Include the schema in the URL
+    depends_on:
+      - kafka
+
+  server:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.server
+    container_name: calculator_server
+    ports:
+      - "50051:50051"
+    environment:
+      - KAFKA_BROKER_URL=kafka:9092  # Ensure this matches your Kafka broker URL
+      - FASTAPI_SERVER=http://fastapi_app:8000  # Include the schema in the URL
+    depends_on:
+      - kafka
+
+  zookeeper:
+    image: 'confluentinc/cp-zookeeper:latest'
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - '2181:2181'
+
+  kafka:
+    image: 'confluentinc/cp-kafka:latest'
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092'  # Use the service name of the Kafka broker
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - '9092:9092'
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    depends_on:
+      - mongodb
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.mongodb
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml 
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  mongo-data:
+  grafana-storage:

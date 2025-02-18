@@ -3,7 +3,7 @@ import requests
 import os
 
 Kafkasever = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
-Fastapi = os.getenv("FASTAPI_SERVER", "localhost:8000")
+Fastapi = os.getenv("FASTAPI_SERVER", "http://localhost:8000")
 
 # Configuration for Kafka consumer
 consumer_config = {
