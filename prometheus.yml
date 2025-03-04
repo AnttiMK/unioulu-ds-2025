@@ -8,8 +8,8 @@ scrape_configs:
 
   - job_name: 'grpc'
     static_configs:
-      - targets: ['localhost:50051']
+      - targets: ['calculator_server:8001']
 
   - job_name: 'kafka'
     static_configs:
-      - targets: ['localhost:9092']
+      - targets: ['kafka:8080']

@@ -28,6 +28,7 @@ services:
     container_name: calculator_server
     ports:
       - "50051:50051"
+      - "8001:8001"
     environment:
       - KAFKA_BROKER_URL=kafka:9092  # Ensure this matches your Kafka broker URL
       - FASTAPI_SERVER=http://fastapi_app:8000  # Include the schema in the URL
@@ -49,10 +50,15 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092'  # Use the service name of the Kafka broker
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OPTS: "-javaagent:/etc/kafka/jmx_prometheus_javaagent.jar=8080:/etc/kafka/jmx-exporter-config.yml"
     ports:
       - '9092:9092'
+      - '8080:8080'  # JMX Exporter port
+    volumes:
+      - ./jmx_prometheus_javaagent.jar:/etc/kafka/jmx_prometheus_javaagent.jar
+      - ./jmx-exporter-config.yml:/etc/kafka/jmx-exporter-config.yml
 
   mongodb:
     image: mongo:latest

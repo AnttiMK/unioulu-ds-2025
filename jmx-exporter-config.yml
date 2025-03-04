@@ -1,0 +1,9 @@
+lowercaseOutputName: true
+rules:
+  - pattern: kafka.server<type=(.+), name=(.+), topic=(.+), partition=(.+)><>Value
+    name: kafka_server_$1_$2
+    labels:
+      topic: "$3"
+      partition: "$4"
+  - pattern: kafka.server<type=(.+), name=(.+)><>Value
+    name: kafka_server_$1_$2
