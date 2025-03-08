@@ -8,6 +8,8 @@ locust==2.24.0
 motor==3.6.1
 openai==1.65.4
 prometheus_client==0.21.1
+prometheus-fastapi-instrumentator==7.0.2
+prometheus-kafka-metrics==0.4.2 
 protobuf==5.29.3
 pydantic==2.10.5
 pymongo==4.9.2
