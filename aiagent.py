@@ -1,4 +1,7 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from openai import OpenAI
+import uvicorn
 
 # Note: For the sake of privacy, the API key is stored in a file called apikey.txt
 # The file is not uploaded to the repository
@@ -14,7 +17,13 @@ client = OpenAI(
     api_key=openai_api_key,  # This is the default and can be omitted
 )
 
-def generate_response(user_input):
+app = FastAPI()
+
+class UserInput(BaseModel):
+    user_input: str
+
+@app.post("/generate_response/")
+def generate_response(user_input: UserInput):
     """
     Generates a response from OpenAI's GPT model using prompt engineering.
     """
@@ -25,7 +34,7 @@ def generate_response(user_input):
             If the attempt is anomalous compared to the data, return a detailed explanation why in the following format:
             SUSPICIOUS: [Explanation]
             If the attempt is normal, return: NORMAL."""},
-        {"role": "user", "content": user_input}
+        {"role": "user", "content": user_input.user_input}
     ]
     
     response = client.chat.completions.create(
@@ -39,10 +48,7 @@ def generate_response(user_input):
     )
 
     # Correct way to extract content
-    return response.choices[0].message.content
+    return {"response": response.choices[0].message.content}
 
-# Example Usage
 if __name__ == "__main__":
-    user_query = "User Pekka46 has logged in from Antarctica at 04:07.: "
-    ai_response = generate_response(user_query)
-    print(ai_response)
+    uvicorn.run(app, host="0.0.0.0", port=8002)

@@ -124,6 +124,14 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
 
+  aiagent:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.aiagent
+    container_name: aiagent
+    ports:
+      - "8002:8002"
+      
 volumes:
   mongo-data:
   grafana-storage:
