@@ -12,6 +12,7 @@ prometheus-fastapi-instrumentator==7.0.2
 prometheus-kafka-metrics==0.4.2 
 protobuf==5.29.3
 pydantic==2.10.5
+py-grpc-prometheus==0.8.0
 pymongo==4.9.2
 requests==2.32.3
 starlette==0.41.3

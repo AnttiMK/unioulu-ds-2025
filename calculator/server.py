@@ -4,8 +4,7 @@ import calculator_pb2
 import calculator_pb2_grpc
 from confluent_kafka import Producer
 from prometheus_client import start_http_server, Summary, Counter, Gauge
-from prometheus_client.exposition import generate_latest
-from prometheus_kafka_producer.metrics_manager import ProducerMetricsManager
+from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 from grpc_reflection.v1alpha import reflection
 import os
 
@@ -14,13 +13,6 @@ KafkaServer = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
 # Start Prometheus metrics server for gRPC (8001)
 start_http_server(8001)
 
-
-"""
-# Define metrics
-REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
-REQUEST_COUNT = Counter('request_count', 'Total number of requests')
-IN_PROGRESS = Gauge('in_progress_requests', 'Number of requests in progress')
-"""
 # Configuration for Kafka producer
 producer_config = {
     'bootstrap.servers': KafkaServer,  # Kafka broker
@@ -51,7 +43,8 @@ class CalculatorServicer(calculator_pb2_grpc.CalculatorServicer):
         return response
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),
+                         interceptors=(PromServerInterceptor(enable_handling_time_histogram=True),))
     calculator_pb2_grpc.add_CalculatorServicer_to_server(CalculatorServicer(), server)
     SERVICE_NAMES = (
         calculator_pb2.DESCRIPTOR.services_by_name['Calculator'].full_name,
