@@ -20,10 +20,14 @@ class CalculatorUser(HttpUser):
     def on_start(self):
         """Initialize the gRPC channel when a user starts"""
         # Create a gRPC channel to the server
-        # Using the service name that would be used in Docker Compose
         grpc_host = os.environ.get("GRPC_SERVER_URL", "localhost:50051")
         self.grpc_channel = grpc.insecure_channel(grpc_host)
         self.calculator_stub = CalculatorStub(self.grpc_channel)
+        
+        # Set API key for HTTP requests
+        api_key = os.environ.get("SERVICE_API_KEY", "")
+        if api_key:
+            self.client.headers.update({"X-API-Key": api_key})
 
     def on_stop(self):
         """Close the gRPC channel when a user stops"""

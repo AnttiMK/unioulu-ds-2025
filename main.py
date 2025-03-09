@@ -1,46 +1,37 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 from motor.motor_asyncio import AsyncIOMotorClient
-from typing import List
+from typing import List, Optional
 import os
 from prometheus_client import start_http_server, Summary, Counter, Gauge
 from prometheus_client.exposition import generate_latest
 from fastapi.responses import PlainTextResponse
 from prometheus_fastapi_instrumentator import Instrumentator
+from policy_engine import policy_engine  # Import the policy engine
 
 app = FastAPI()
 
 mongodb_url = os.getenv("MONGODB_URL", "mongodb://admin:password@localhost:27017")
 
-# Start Prometheus metrics server
-#start_http_server(8001)
-
-# Define metrics
-#REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
-#REQUEST_COUNT = Counter('request_count', 'Total number of requests')
-#IN_PROGRESS = Gauge('in_progress_requests', 'Number of requests in progress')
-
 Instrumentator().instrument(app).expose(app)
-
-"""
-@app.middleware("http")
-async def add_metrics(request, call_next):
-    REQUEST_COUNT.inc()
-    IN_PROGRESS.inc() 
-    with REQUEST_TIME.time():
-        response = await call_next(request)
-    IN_PROGRESS.dec()
-    return response
-"""
-#@app.get("/metrics")
-#async def metrics():
-#    return PlainTextResponse(generate_latest())
-
 
 # MongoDB connection
 client = AsyncIOMotorClient(mongodb_url)
 db = client.calculations_db
 collection = db.calculations
+
+# API key verification dependency using policy engine
+async def verify_api_key(x_api_key: Optional[str] = Header(None)):
+    if x_api_key is None:
+        raise HTTPException(status_code=401, detail="API Key is missing")
+    
+    if not policy_engine.is_valid_api_key(x_api_key):
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    
+    if not policy_engine.check_rate_limit(x_api_key):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+    
+    return x_api_key
 
 @app.get("/")
 async def read_root():
@@ -58,7 +49,15 @@ class CalculationResponse(BaseModel):
     result: float
 
 @app.post("/store_calculation", response_model=CalculationResponse)
-async def store_calculation(request: CalculationRequest):
+async def store_calculation(request: CalculationRequest, x_api_key: str = Depends(verify_api_key)):
+    # Check endpoint permission
+    if not policy_engine.can_access_endpoint(x_api_key, "store_calculation"):
+        raise HTTPException(status_code=403, detail="Service not authorized to store calculations")
+    
+    # Validate input values
+    if not policy_engine.validate_calculation_input(x_api_key, request.num1, request.num2):
+        raise HTTPException(status_code=400, detail="Input values exceed allowed range")
+    
     # Store the request and result in MongoDB
     calculation = {
         "num1": request.num1,
@@ -70,7 +69,11 @@ async def store_calculation(request: CalculationRequest):
     return request
 
 @app.get("/calculations", response_model=List[CalculationResponse])
-async def get_calculations():
+async def get_calculations(x_api_key: str = Depends(verify_api_key)):
+    # Check endpoint permission
+    if not policy_engine.can_access_endpoint(x_api_key, "get_calculations"):
+        raise HTTPException(status_code=403, detail="Service not authorized to read calculations")
+    
     calculations = []
     async for calculation in collection.find():
         calculations.append(CalculationResponse(**calculation))

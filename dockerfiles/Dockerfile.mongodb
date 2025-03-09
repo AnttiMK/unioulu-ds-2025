@@ -13,8 +13,9 @@ COPY ../requirements.txt requirements.txt
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the FastAPI code from the mongodb-fastapi directory
+# Copy the FastAPI code
 COPY ../main.py main.py
+COPY ../policy_engine.py policy_engine.py
 
 # Expose port 8000 and run the app
 EXPOSE 8000
