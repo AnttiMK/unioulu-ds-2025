@@ -7,8 +7,10 @@ from prometheus_client import start_http_server, Summary, Counter, Gauge
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 from grpc_reflection.v1alpha import reflection
 import os
+import requests  # Add if needed for API calls
 
 KafkaServer = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
+api_key = os.getenv("SERVICE_API_KEY", "")  # Add this line for API key
 
 # Start Prometheus metrics server for gRPC (8001)
 start_http_server(8001)

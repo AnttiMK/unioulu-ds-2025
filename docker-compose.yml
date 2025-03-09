@@ -15,9 +15,10 @@ services:
       dockerfile: dockerfiles/Dockerfile.consumer
     container_name: calculator_consumer
     environment:
-      - MONGODB_URL=mongodb://admin:password@mongodb:27017  # Ensure this matches your MongoDB URL
-      - KAFKA_BROKER_URL=kafka:9092  # Ensure this matches your Kafka broker URL
-      - FASTAPI_SERVER=http://fastapi_app:8000  # Include the schema in the URL
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017
+      - KAFKA_BROKER_URL=kafka:9092
+      - FASTAPI_SERVER=http://fastapi_app:8000
+      - SERVICE_API_KEY=${CALCULATOR_CONSUMER_API_KEY}  # Add API key from .env
     depends_on:
       - kafka
 
@@ -30,11 +31,12 @@ services:
       - "50051:50051"
       - "8001:8001"
     environment:
-      - KAFKA_BROKER_URL=kafka:9092  # Ensure this matches your Kafka broker URL
-      - FASTAPI_SERVER=http://fastapi_app:8000  # Include the schema in the URL
+      - KAFKA_BROKER_URL=kafka:9092
+      - FASTAPI_SERVER=http://fastapi_app:8000
+      - SERVICE_API_KEY=${CALCULATOR_SERVER_API_KEY}  # Add API key from .env
     depends_on:
       - kafka
-
+      
   zookeeper:
     image: 'confluentinc/cp-zookeeper:latest'
     environment:
@@ -92,6 +94,12 @@ services:
     container_name: fastapi_app
     ports:
       - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://admin:password@mongodb:27017
+      - CALCULATOR_CONSUMER_API_KEY=${CALCULATOR_CONSUMER_API_KEY}
+      - CALCULATOR_SERVER_API_KEY=${CALCULATOR_SERVER_API_KEY}
+    volumes:
+      - ./policy_engine.py:/app/policy_engine.py
     depends_on:
       - mongodb
 
@@ -103,6 +111,7 @@ services:
       - "8089:8089"
     environment:
       - GRPC_SERVER_URL=server:50051
+      - SERVICE_API_KEY=${CALCULATOR_CONSUMER_API_KEY}  # Add API key for testing
     depends_on:
       - fastapi
       - server
