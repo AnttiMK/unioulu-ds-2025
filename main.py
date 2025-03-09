@@ -12,30 +12,8 @@ app = FastAPI()
 
 mongodb_url = os.getenv("MONGODB_URL", "mongodb://admin:password@localhost:27017")
 
-# Start Prometheus metrics server
-#start_http_server(8001)
-
-# Define metrics
-#REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
-#REQUEST_COUNT = Counter('request_count', 'Total number of requests')
-#IN_PROGRESS = Gauge('in_progress_requests', 'Number of requests in progress')
-
+# Initiliaze Prometheus metrics server for FastAPI (8000)
 Instrumentator().instrument(app).expose(app)
-
-"""
-@app.middleware("http")
-async def add_metrics(request, call_next):
-    REQUEST_COUNT.inc()
-    IN_PROGRESS.inc() 
-    with REQUEST_TIME.time():
-        response = await call_next(request)
-    IN_PROGRESS.dec()
-    return response
-"""
-#@app.get("/metrics")
-#async def metrics():
-#    return PlainTextResponse(generate_latest())
-
 
 # MongoDB connection
 client = AsyncIOMotorClient(mongodb_url)

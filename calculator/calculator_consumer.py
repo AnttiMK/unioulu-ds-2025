@@ -1,11 +1,12 @@
 from confluent_kafka import Consumer, KafkaException, KafkaError
+from prometheus_kafka_consumer.metrics_manager import ConsumerMetricsManager
+from prometheus_client import start_http_server
 import requests
 import os
 
 Kafkasever = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
 Fastapi = os.getenv("FASTAPI_SERVER", "http://localhost:8000")
 
-# Configuration for Kafka consumer
 consumer_config = {
     'bootstrap.servers': Kafkasever,
     'group.id': 'consumer-microservice',

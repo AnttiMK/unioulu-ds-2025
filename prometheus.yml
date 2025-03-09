@@ -4,12 +4,12 @@ global:
 scrape_configs:
   - job_name: 'fastapi'
     static_configs:
-      - targets: ['fastapi_app:8000']
+      - targets: ['fastapi_app:8000'] # Port for FastAPI server metrics
 
   - job_name: 'grpc'
     static_configs:
-      - targets: ['calculator_server:8001']
+      - targets: ['calculator_server:8001']  # Port for gRPC server metrics
 
   - job_name: 'kafka'
     static_configs:
-      - targets: ['kafka:8080']
+      - targets: ['kafka-exporter:9308']  # Port for Kafka metrics
