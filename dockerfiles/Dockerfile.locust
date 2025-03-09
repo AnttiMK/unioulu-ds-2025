@@ -2,14 +2,23 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
+# Install dependencies for SSL
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
 # Copy the entire project
 COPY . .
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Create a modified version of calculator_pb2_grpc.py with the correct import
 RUN sed -i 's/import calculator_pb2 as calculator__pb2/from calculator import calculator_pb2 as calculator__pb2/' /app/calculator/calculator_pb2_grpc.py
+
+# Create directory for certificates if it doesn't exist
+RUN mkdir -p /app/certs
 
 # Expose the Locust web interface port
 EXPOSE 8089

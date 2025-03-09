@@ -3,6 +3,9 @@ global:
 
 scrape_configs:
   - job_name: 'fastapi'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true  # For self-signed certificates
     static_configs:
       - targets: ['fastapi_app:8000'] # Port for FastAPI server metrics
 

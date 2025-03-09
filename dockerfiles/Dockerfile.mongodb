@@ -7,6 +7,11 @@ ENV MONGODB_URL=mongodb://admin:password@mongodb:27017
 # Set the working directory
 WORKDIR /app
 
+# Install OpenSSL for certificate handling
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy requirements file from the root of the project
 COPY ../requirements.txt requirements.txt
 
@@ -17,6 +22,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ../main.py main.py
 COPY ../policy_engine.py policy_engine.py
 
+# Create directory for certificates
+RUN mkdir -p /app/certs
+
 # Expose port 8000 and run the app
 EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--ssl-keyfile", "/app/certs/key.pem", "--ssl-certfile", "/app/certs/cert.pem"]

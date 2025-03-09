@@ -79,3 +79,13 @@ async def get_calculations(x_api_key: str = Depends(verify_api_key)):
     async for calculation in collection.find():
         calculations.append(CalculationResponse(**calculation))
     return calculations
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0", 
+        port=8000,
+        ssl_keyfile="/app/certs/key.pem",
+        ssl_certfile="/app/certs/cert.pem"
+    )

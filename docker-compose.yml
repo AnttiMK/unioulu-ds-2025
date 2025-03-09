@@ -5,7 +5,9 @@ services:
       dockerfile: dockerfiles/Dockerfile.client
     container_name: calculator_client
     environment:
-      - GRPC_SERVER_URL=server:50051  # Use the service name of the gRPC server
+      - GRPC_SERVER_URL=server:50051
+    volumes:
+      - ./certs:/app/certs:ro  # Mount certificates
     depends_on:
       - server
 
@@ -17,8 +19,10 @@ services:
     environment:
       - MONGODB_URL=mongodb://admin:password@mongodb:27017
       - KAFKA_BROKER_URL=kafka:9092
-      - FASTAPI_SERVER=http://fastapi_app:8000
-      - SERVICE_API_KEY=${CALCULATOR_CONSUMER_API_KEY}  # Add API key from .env
+      - FASTAPI_SERVER=https://fastapi_app:8000  # Changed to HTTPS
+      - SERVICE_API_KEY=${CALCULATOR_CONSUMER_API_KEY}
+    volumes:
+      - ./certs:/app/certs:ro  # Mount certificates
     depends_on:
       - kafka
 
@@ -32,8 +36,10 @@ services:
       - "8001:8001"
     environment:
       - KAFKA_BROKER_URL=kafka:9092
-      - FASTAPI_SERVER=http://fastapi_app:8000
-      - SERVICE_API_KEY=${CALCULATOR_SERVER_API_KEY}  # Add API key from .env
+      - FASTAPI_SERVER=https://fastapi_app:8000  # Changed to HTTPS
+      - SERVICE_API_KEY=${CALCULATOR_SERVER_API_KEY}
+    volumes:
+      - ./certs:/app/certs:ro  # Mount certificates
     depends_on:
       - kafka
       
@@ -100,8 +106,10 @@ services:
       - CALCULATOR_SERVER_API_KEY=${CALCULATOR_SERVER_API_KEY}
     volumes:
       - ./policy_engine.py:/app/policy_engine.py
+      - ./certs:/app/certs:ro  # Mount certificates
     depends_on:
       - mongodb
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --ssl-keyfile /app/certs/key.pem --ssl-certfile /app/certs/cert.pem
 
   locust:
     build:
@@ -111,11 +119,15 @@ services:
       - "8089:8089"
     environment:
       - GRPC_SERVER_URL=server:50051
-      - SERVICE_API_KEY=${CALCULATOR_CONSUMER_API_KEY}  # Add API key for testing
+      - SERVICE_API_KEY=${CALCULATOR_CONSUMER_API_KEY}
+      - PYTHONUNBUFFERED=1  # Add this for better logging
+    volumes:
+      - ./certs:/app/certs:ro  # Mount certificates
+      - ./locustfile.py:/app/locustfile.py  # Mount locust file directly
     depends_on:
       - fastapi
       - server
-    command: --host http://fastapi:8000
+    command: --host https://fastapi:8000  # Changed to HTTPS
 
   prometheus:
     image: prom/prometheus:latest
