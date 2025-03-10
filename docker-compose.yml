@@ -151,7 +151,7 @@ services:
       dockerfile: dockerfiles/Dockerfile.aiagent
     container_name: aiagent
     ports:
-      - "8002:8002"
+      - "8005:8005"
 
   kafka-exporter:
     image: danielqsj/kafka-exporter
