@@ -1,7 +1,7 @@
-from typing import Dict, List, Optional, Set
-import os
-from datetime import datetime
-from prometheus_client import Counter, Gauge, Histogram
+from typing import Dict, List, Optional, Set  # Type hints
+import os  # For environment variables
+from datetime import datetime  # For time-based operations
+from prometheus_client import Counter, Gauge, Histogram  # For metrics collection
 
 class PolicyEngine:
     def __init__(self):
@@ -16,13 +16,13 @@ class PolicyEngine:
         consumer_key = os.getenv("CALCULATOR_CONSUMER_API_KEY", "")
         if consumer_key:
             self.api_keys[consumer_key] = {
-                "service": "calculator_consumer",
-                "permissions": {
+                "service": "calculator_consumer",  # Service identifier
+                "permissions": {  # Allowed API endpoints
                     "store_calculation": True,
                     "get_calculations": True
                 },
-                "rate_limit": 100,
-                "max_input_value": 1000
+                "rate_limit": 100,  # Requests per minute
+                "max_input_value": 1000  # Maximum allowed input value
             }
         
         # Add the server key with its policies
@@ -32,15 +32,15 @@ class PolicyEngine:
                 "service": "calculator_server",
                 "permissions": {
                     "store_calculation": True,
-                    "get_calculations": False
+                    "get_calculations": False  # Server can't read calculations
                 },
-                "rate_limit": 200,
-                "max_input_value": 10000
+                "rate_limit": 200,  # Higher rate limit for server
+                "max_input_value": 10000  # Higher input limit for server
             }
             
         # Track rate limiting
-        self.request_counts = {}
-        self.last_reset = datetime.now()
+        self.request_counts = {}  # Tracks number of requests per API key
+        self.last_reset = datetime.now()  # Timestamp of last rate limit reset
         
         # Define Prometheus metrics for policy engine
         self.policy_violation_counter = Counter(
@@ -65,11 +65,19 @@ class PolicyEngine:
             'input_value_size',
             'Size of input values',
             ['service'],
-            buckets=[10, 50, 100, 500, 1000, 5000, 10000]
+            buckets=[10, 50, 100, 500, 1000, 5000, 10000]  # Value size buckets
         )
     
     def is_valid_api_key(self, api_key: Optional[str]) -> bool:
-        """Check if the API key is valid"""
+        """
+        Check if the API key is valid
+        
+        Args:
+            api_key: The API key to validate
+            
+        Returns:
+            True if API key is registered, False otherwise
+        """
         if not api_key:
             # Record violation for missing API key
             self.policy_violation_counter.labels(
@@ -97,11 +105,19 @@ class PolicyEngine:
         return is_valid
     
     def check_rate_limit(self, api_key: str) -> bool:
-        """Check if the API key is within rate limits"""
+        """
+        Check if the API key is within rate limits
+        
+        Args:
+            api_key: The API key to check
+            
+        Returns:
+            True if request is within rate limits, False otherwise
+        """
         # Reset counters if a minute has passed
         now = datetime.now()
         if (now - self.last_reset).seconds > 60:
-            self.request_counts = {}
+            self.request_counts = {}  # Clear all counters
             self.last_reset = now
         
         # Initialize counter if needed
@@ -130,7 +146,16 @@ class PolicyEngine:
         return True
     
     def can_access_endpoint(self, api_key: str, endpoint: str) -> bool:
-        """Check if the service can access a specific endpoint"""
+        """
+        Check if the service can access a specific endpoint
+        
+        Args:
+            api_key: The API key of the service
+            endpoint: The endpoint being accessed
+            
+        Returns:
+            True if service has permission for the endpoint, False otherwise
+        """
         if not self.is_valid_api_key(api_key):
             return False
             
@@ -162,7 +187,17 @@ class PolicyEngine:
         return can_access
     
     def validate_calculation_input(self, api_key: str, num1: float, num2: float) -> bool:
-        """Validate that input numbers are within the service's allowed limits"""
+        """
+        Validate that input numbers are within the service's allowed limits
+        
+        Args:
+            api_key: The API key of the service
+            num1: First number in calculation
+            num2: Second number in calculation
+            
+        Returns:
+            True if inputs are within allowed limits, False otherwise
+        """
         service_info = self.api_keys.get(api_key, {})
         service_name = service_info.get("service", "unknown")
         max_value = service_info.get("max_input_value", 100)

@@ -4,37 +4,49 @@
 # source: calculator.proto
 # Protobuf Python Version: 5.29.0
 """Generated protocol buffer code."""
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import descriptor_pool as _descriptor_pool
-from google.protobuf import runtime_version as _runtime_version
-from google.protobuf import symbol_database as _symbol_database
-from google.protobuf.internal import builder as _builder
+# Import necessary protobuf modules for message handling
+from google.protobuf import descriptor as _descriptor  # For describing protobuf message types
+from google.protobuf import descriptor_pool as _descriptor_pool  # Pool of message descriptors
+from google.protobuf import runtime_version as _runtime_version  # For version compatibility checks
+from google.protobuf import symbol_database as _symbol_database  # Registry for protobuf messages
+from google.protobuf.internal import builder as _builder  # Helper for building protobuf messages
+
+# Validate that the runtime version matches the version used to generate this code
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    0,
-    '',
-    'calculator.proto'
+    _runtime_version.Domain.PUBLIC,  # Using public domain protobuf
+    5,  # Major version
+    29,  # Minor version
+    0,  # Patch version
+    '',  # Empty suffix
+    'calculator.proto'  # Source proto file
 )
 # @@protoc_insertion_point(imports)
 
+# Create a symbol database instance (registry for message types)
 _sym_db = _symbol_database.Default()
 
 
-
-
+# Define the protocol buffer descriptor using serialized data
+# This contains the compiled schema from calculator.proto
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x63\x61lculator.proto\"(\n\nAddRequest\x12\x0c\n\x04num1\x18\x01 \x01(\x01\x12\x0c\n\x04num2\x18\x02 \x01(\x01\"\x1d\n\x0b\x41\x64\x64Response\x12\x0e\n\x06result\x18\x01 \x01(\x01\x32.\n\nCalculator\x12 \n\x03\x41\x64\x64\x12\x0b.AddRequest\x1a\x0c.AddResponseb\x06proto3')
 
+# Get the global namespace to populate with generated classes
 _globals = globals()
+
+# Build message descriptors and add them to the global namespace
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+
+# Build top-level descriptors and message classes
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'calculator_pb2', _globals)
+
+# Set serialization information if using Python implementation (not C++)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ADDREQUEST']._serialized_start=20
-  _globals['_ADDREQUEST']._serialized_end=60
-  _globals['_ADDRESPONSE']._serialized_start=62
-  _globals['_ADDRESPONSE']._serialized_end=91
-  _globals['_CALCULATOR']._serialized_start=93
-  _globals['_CALCULATOR']._serialized_end=139
+  # Define offsets in the serialized data for each message type
+  _globals['_ADDREQUEST']._serialized_start=20  # AddRequest message starts at byte 20
+  _globals['_ADDREQUEST']._serialized_end=60    # AddRequest message ends at byte 60
+  _globals['_ADDRESPONSE']._serialized_start=62  # AddResponse message starts at byte 62
+  _globals['_ADDRESPONSE']._serialized_end=91    # AddResponse message ends at byte 91
+  _globals['_CALCULATOR']._serialized_start=93   # Calculator service starts at byte 93
+  _globals['_CALCULATOR']._serialized_end=139    # Calculator service ends at byte 139
 # @@protoc_insertion_point(module_scope)
